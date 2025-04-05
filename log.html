@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login - WeSave</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('https://i.pinimg.com/474x/c8/f7/bd/c8f7bdd3e52c315dafb9641f92672498.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    h1 {
+      color: #fff;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .login-box {
+      background-color: rgba(170, 160, 158, 0.9);
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #d4c1f0;
+      box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+      width: 300px;
+    }
+
+    label {
+      display: block;
+      font-size: 16px;
+      color: aliceblue;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    input {
+      width: 100%;
+      padding: 5px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .submit-btn {
+      background-color: red;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+    }
+
+    .submit-btn:hover {
+      background-color: darkred;
+    }
+
+    .message {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #4caf50;
+    }
+
+    .error {
+      color: #ff4444;
+    }
+
+    a {
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>📝 <b>Log In</b></h1>
+  <div class="login-box">
+    <form id="loginForm">
+      <label for="name">Username:</label>
+      <input type="text" id="name" name="name" required>
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit" class="submit-btn">Submit</button>
+
+      <p class="message" id="loginMsg"></p>
+
+      <p><a href="./forgot.html">Forgot Password?</a></p>
+      <p>Don't have an account? <a href="signup.html"><b>Sign Up</b></a></p>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("loginMsg");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById("name").value;
+      const password = document.getElementById("password").value;
+
+      // Demo credentials — replace with real logic or connect to backend
+      if (username === "user" && password === "1234") {
+        msg.textContent = "✅ Login Successful!";
+        msg.className = "message success";
+
+        // Optional: redirect to home page after login
+        // setTimeout(() => {
+        //   window.location.href = "./home.html";
+        // }, 1000);
+      } else {
+        msg.textContent = "❌ Incorrect username or password.";
+        msg.className = "message error";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Piggy Bank - Pocket</title>
+  <style>body {
+    display: flex;
+    flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('https://i.pinimg.com/474x/c8/f7/bd/c8f7bdd3e52c315dafb9641f92672498.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color:white;
+  }
+  .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+        }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color:whitesmoke
+        }
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar-menu a {
+            text-decoration: none;
+            color:white;
+            font-size: 16px;
+        }
+  
+  .container {
+    max-width: 800px;
+    margin: auto;
+    background-color: #1c1c1e;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+  }
+  
+  h1, h2 {
+    color: #bbe1fa;
+  }
+  
+  input, button {
+    padding: 10px;
+    margin: 8px 5px;
+    font-size: 1em;
+    border-radius: 8px;
+    border: none;
+  }
+  
+  input {
+    width: 200px;
+  }
+  
+  button {
+    background-color: #ffce00;
+    color: white;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0f4c75;
+  }
+  
+  .summary {
+    margin-top: 20px;
+  }
+  
+  #savingHistory {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  #savingHistory li {
+    background-color: #1b262c;
+    margin: 5px 0;
+    padding: 10px;
+    border-left: 4px solid #3282b8;
+    border-radius: 6px;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-brand">WeSave 💸</div>
+    <div class="navbar-menu">
+        <a href="./home.html">Home</a>
+        <a href="thismonth.html">This Month</a>
+        <a href="piggybank.html">Piggy Bank</a>
+        <a href="pocket.html">MyPocket</a>
+        <a href="./schlrs.html">Funds</a>
+        <a href="aboutus.html">About Us</a>
+        <a href="log.html">Login</a>
+        <a href="./signup.html">SignUp</a>
+        <i class="fa-regular fa-money-bill-1"></i>
+        <a href="./profile.html">Profile</a>
+    </div>
+</div>
+
+  <div class="container">
+    <h1>🐖 Piggy Bank Tracker</h1>
+
+    <!-- Savings Plan Creation -->
+    <section class="plan-section">
+      <h2>Create Savings Plan</h2>
+      <input type="number" id="planAmount" placeholder="Amount to Save (₹)" />
+      <input type="number" id="planFrequency" placeholder="Save every X days" />
+      <input type="number" id="planDuration" placeholder="Duration (in days)" />
+      <input type="text" id="planReason" placeholder="Reason for Saving" />
+      <button id="createPlan">Create Plan</button>
+    </section>
+
+    <!-- Daily Logging -->
+    <section class="log-section">
+      <h2>Log Daily Savings</h2>
+      <input type="number" id="dailyAmount" placeholder="Amount Saved Today (₹)" />
+      <button id="logSavings">Log Savings</button>
+      <label><input type="checkbox" id="savedToday" /> I saved money today</label>
+    </section>
+
+    <!-- Withdraw from Piggy Bank -->
+    <section class="withdraw-section">
+      <h2>Withdraw from Piggy Bank</h2>
+      <input type="number" id="withdrawAmount" placeholder="Amount to Withdraw (₹)" />
+      <button id="withdrawBtn">Withdraw</button>
+    </section>
+
+    <!-- Summary -->
+    <section class="summary">
+      <h2>Summary</h2>
+      <p><strong>Total Saved:</strong> ₹<span id="totalSaved">0</span></p>
+      <div id="planDisplay" class="hidden">
+        <p><strong>Your Plan:</strong> <span id="planSummary"></span></p>
+      </div>
+      <ul id="savingHistory"></ul>
+    </section>
+  </div>
+
+  <script>document.addEventListener('DOMContentLoaded', () => {
+    const planAmount = document.getElementById('planAmount');
+    const planFrequency = document.getElementById('planFrequency');
+    const planDuration = document.getElementById('planDuration');
+    const planReason = document.getElementById('planReason');
+    const planSummary = document.getElementById('planSummary');
+    const planDisplay = document.getElementById('planDisplay');
+  
+    const dailyAmount = document.getElementById('dailyAmount');
+    const savedToday = document.getElementById('savedToday');
+    const totalSaved = document.getElementById('totalSaved');
+    const savingHistory = document.getElementById('savingHistory');
+  
+    const withdrawAmount = document.getElementById('withdrawAmount');
+  
+    function getData() {
+      return JSON.parse(localStorage.getItem('piggyBankData')) || {
+        totalSaved: 0,
+        history: [],
+        plan: null
+      };
+    }
+  
+    function saveData(data) {
+      localStorage.setItem('piggyBankData', JSON.stringify(data));
+    }
+  
+    function createPlan() {
+      const data = getData();
+      const amount = parseFloat(planAmount.value);
+      const frequency = parseInt(planFrequency.value);
+      const duration = parseInt(planDuration.value);
+      const reason = planReason.value.trim();
+  
+      if (!amount || !frequency || !duration || !reason) {
+        alert('Please fill all plan fields!');
+        return;
+      }
+  
+      data.plan = { amount, frequency, duration, reason, startDate: new Date().toISOString() };
+      saveData(data);
+      updateUI();
+    }
+  
+    function logSavings() {
+      const amount = parseFloat(dailyAmount.value);
+      if (!amount) {
+        alert('Enter amount saved today!');
+        return;
+      }
+  
+      const data = getData();
+      data.totalSaved += amount;
+      const logEntry = {
+        amount,
+        type: 'save',
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+      };
+      data.history.unshift(logEntry);
+      saveData(data);
+      updateUI();
+      clearInputs();
+    }
+  
+    function withdrawMoney() {
+      const amount = parseFloat(withdrawAmount.value);
+      if (!amount || amount <= 0) {
+        alert('Enter a valid withdrawal amount!');
+        return;
+      }
+  
+      const data = getData();
+      if (amount > data.totalSaved) {
+        alert("You can't withdraw more than what you've saved.");
+        return;
+      }
+  
+      data.totalSaved -= amount;
+      const logEntry = {
+        amount,
+        type: 'withdraw',
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+      };
+      data.history.unshift(logEntry);
+      saveData(data);
+      updateUI();
+      withdrawAmount.value = '';
+    }
+  
+    function updateUI() {
+      const data = getData();
+      totalSaved.textContent = data.totalSaved;
+  
+      // Only show plan if it exists
+      if (data.plan) {
+        planDisplay.classList.remove('hidden');
+        planSummary.textContent = `Save ₹${data.plan.amount} every ${data.plan.frequency} day(s) for ${data.plan.duration} days. Reason: ${data.plan.reason}`;
+      } else {
+        planDisplay.classList.add('hidden');
+      }
+  
+      // Show log history
+      savingHistory.innerHTML = '';
+      data.history.forEach(entry => {
+        const li = document.createElement('li');
+        const typeLabel = entry.type === 'save' ? 'Saved' : 'Withdrew';
+        li.textContent = `${typeLabel} ₹${entry.amount} on ${entry.date} at ${entry.time}`;
+        savingHistory.appendChild(li);
+      });
+    }
+  
+    function clearInputs() {
+      dailyAmount.value = '';
+      savedToday.checked = false;
+    }
+  
+    // Event Listeners
+    document.getElementById('createPlan').addEventListener('click', createPlan);
+    document.getElementById('logSavings').addEventListener('click', logSavings);
+    document.getElementById('withdrawBtn').addEventListener('click', withdrawMoney);
+  
+    updateUI();
+  });</script>
+</body>
+</html>

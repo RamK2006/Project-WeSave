@@ -1,0 +1,273 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pocket - Lending Tracker</title>
+<style>body {
+   display: flex;
+    flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('https://i.pinimg.com/474x/c8/f7/bd/c8f7bdd3e52c315dafb9641f92672498.jpg') no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      color:white;
+}
+.navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+        }
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: bold;
+            color:whitesmoke
+        }
+        .navbar-menu {
+            display: flex;
+            gap: 20px;
+        }
+        .navbar-menu a {
+            text-decoration: none;
+            color:white;
+            font-size: 16px;
+        }
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background-color: #1c1c1e;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+
+h1, h3 {
+  color: #bbe1fa;
+}
+
+input, select, button {
+  margin: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 1em;
+}
+
+input, select {
+  width: 180px;
+}
+
+button {
+  background-color: #ffce00;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0f4c75;
+}
+
+.summary p {
+  margin: 8px 0;
+}
+
+.warning-text {
+  color: #f08a5d;
+  font-weight: bold;
+}
+
+table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+  background-color: #1b262c;
+}
+
+th, td {
+  border: 1px solid #3282b8;
+  padding: 10px;
+  text-align: center;
+}
+
+th {
+  background-color: #3282b8;
+}
+</style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="navbar-brand">WeSave 💸</div>
+    <div class="navbar-menu">
+        <a href="./home.html">Home</a>
+        <a href="thismonth.html">This Month</a>
+        <a href="piggybank.html">Piggy Bank</a>
+        <a href="pocket.html">MyPocket</a>
+        <a href="./schlrs.html">Funds</a>
+        <a href="aboutus.html">About Us</a>
+        <a href="log.html">Login</a>
+        <a href="./signup.html">SignUp</a>
+        <i class="fa-regular fa-money-bill-1"></i>
+        <a href="./profile.html">Profile</a>
+    </div>
+</div>
+
+  <div class="container">
+    <h1>📔 Pocket - Lending & Borrowing Tracker</h1>
+
+    <section class="summary">
+      <p><strong>Budget:</strong> ₹<span id="budgetDisplay">0</span></p>
+      <p><strong>Total Lent:</strong> ₹<span id="totalLent">0</span></p>
+      <p><strong>Total Borrowed:</strong> ₹<span id="totalBorrowed">0</span></p>
+      <p><strong>Weekly Savings:</strong> ₹<span id="weeklySavings">0</span></p>
+      <p><strong>Remaining Budget:</strong> ₹<span id="remainingBudget">0</span></p>
+      <p id="warning" class="warning-text"></p>
+    </section>
+
+    <section class="inputs">
+      <h3>Add Transaction</h3>
+      <input type="number" id="amount" placeholder="Amount (₹)">
+      <input type="text" id="friend" placeholder="Friend's Name">
+      <input type="text" id="reason" placeholder="Reason">
+      <select id="type">
+        <option value="lent">Lent</option>
+        <option value="borrowed">Borrowed</option>
+      </select>
+      <button id="addTransaction">Add</button>
+    </section>
+
+    <section class="budget-section">
+      <h3>Set/Update Monthly Budget</h3>
+      <input type="number" id="budgetInput" placeholder="Enter Budget (₹)">
+      <button id="setBudgetBtn">Set Budget</button>
+    </section>
+
+    <section class="log">
+      <h3>Transaction History</h3>
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Friend</th>
+            <th>Reason</th>
+            <th>Date & Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script >document.addEventListener('DOMContentLoaded', () => {
+    const budgetDisplay = document.getElementById('budgetDisplay');
+    const totalLent = document.getElementById('totalLent');
+    const totalBorrowed = document.getElementById('totalBorrowed');
+    const remainingBudget = document.getElementById('remainingBudget');
+    const weeklySavings = document.getElementById('weeklySavings');
+    const warning = document.getElementById('warning');
+    const historyTable = document.querySelector('#historyTable tbody');
+  
+    function getData() {
+      return JSON.parse(localStorage.getItem('pocketData')) || {
+        transactions: [],
+        budget: 0,
+        weekly: { lastWeek: 0, thisWeek: 0 }
+      };
+    }
+  
+    function saveData(data) {
+      localStorage.setItem('pocketData', JSON.stringify(data));
+    }
+  
+    function addTransaction() {
+      const amount = parseFloat(document.getElementById('amount').value);
+      const friend = document.getElementById('friend').value.trim();
+      const reason = document.getElementById('reason').value.trim();
+      const type = document.getElementById('type').value;
+      const date = new Date().toLocaleString();
+  
+      if (!amount || !friend || !reason) return alert('Fill all fields properly!');
+  
+      const data = getData();
+      data.transactions.push({ amount, friend, reason, type, date });
+      saveData(data);
+      updatePage();
+      clearInputs();
+    }
+  
+    function setBudget() {
+      const budget = parseFloat(document.getElementById('budgetInput').value);
+      if (budget > 0) {
+        const data = getData();
+        data.budget = budget;
+        saveData(data);
+        updatePage();
+      }
+    }
+  
+    function updatePage() {
+      const data = getData();
+      const lent = data.transactions.filter(t => t.type === 'lent').reduce((a, t) => a + t.amount, 0);
+      const borrowed = data.transactions.filter(t => t.type === 'borrowed').reduce((a, t) => a + t.amount, 0);
+      const totalSpent = borrowed; // Let's assume only borrowed counts as spent here
+      const remaining = data.budget - totalSpent;
+  
+      budgetDisplay.textContent = data.budget;
+      totalLent.textContent = lent;
+      totalBorrowed.textContent = borrowed;
+      remainingBudget.textContent = remaining;
+      warning.textContent = '';
+  
+      // Weekly savings estimate (compare thisWeek vs lastWeek)
+      weeklySavings.textContent = data.weekly.lastWeek > 0
+        ? data.weekly.lastWeek - data.weekly.thisWeek
+        : 0;
+  
+      // Show warnings
+      if (totalSpent > data.budget * 0.8) {
+        warning.textContent = '⚠ You are nearing your budget limit!';
+      }
+      if (totalSpent > data.budget) {
+        warning.textContent = '🚨 You have exceeded your budget!';
+      }
+  
+      // Update table
+      historyTable.innerHTML = '';
+      data.transactions.slice().reverse().forEach(t => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${t.type}</td>
+          <td>₹${t.amount}</td>
+          <td>${t.friend}</td>
+          <td>${t.reason}</td>
+          <td>${t.date}</td>
+        `;
+        historyTable.appendChild(row);
+      });
+    }
+  
+    function clearInputs() {
+      document.getElementById('amount').value = '';
+      document.getElementById('friend').value = '';
+      document.getElementById('reason').value = '';
+      document.getElementById('type').value = 'lent';
+    }
+  
+    // Setup event listeners
+    document.getElementById('addTransaction').addEventListener('click', addTransaction);
+    document.getElementById('setBudgetBtn').addEventListener('click', setBudget);
+  
+    updatePage();
+  });
+  </script>
+</body>
+</html>
